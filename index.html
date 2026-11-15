@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"Ambaji Mohanthal Prasad, a traditional gram flour-based sweet offered as prasad at the famous Ambaji Temple, received the Geographical Indication (GI) tag on 8 October 2026. In which state is this GI-tagged product associated?", options:["Rajasthan","Gujarat","Madhya Pradesh","Maharashtra"], answer:1},
+
+{q:"Jeeraphool Rice, a traditional aromatic short-grain rice variety known for its cumin-like grains and distinctive natural fragrance, received the Geographical Indication (GI) tag on 14 March 2019. It is primarily associated with which state?", options:["Jharkhand","Odisha","Chhattisgarh","Madhya Pradesh"], answer:2},
+
+{q:"Pithora Painting, a traditional ritual wall-painting art form practised by the Rathwa, Bhilala and Nayak tribes, received Geographical Indication (GI) recognition. Which state is associated with this traditional art form?", options:["Gujarat","Rajasthan","Madhya Pradesh","Maharashtra"], answer:0},
+
+{q:"Pithora Painting is traditionally performed by tribal communities to worship which deity, who is believed to bring health, wealth, peace and prosperity?", options:["Lord Jagannath","Baba Pithora","Lord Shiva","Baba Baidyanath"], answer:1},
+
+{q:"Consider the following statements regarding Pithora Painting, a GI-recognised traditional tribal art form of Gujarat: 1. It is a ritual wall-painting tradition. 2. Its themes include horses, tribal gods, the Sun and Moon, animals and birds. 3. It is primarily associated with the worship of Baba Pithora. Which of the above statements are correct?", options:["Only 1 and 2","Only 2 and 3","Only 1 and 3","All 1, 2 and 3"], answer:3},
+
+{q:"Under the Geographical Indications of Goods (Registration and Protection) Act, 1999, for how many years is a Geographical Indication (GI) registration initially valid in India?", options:["5 years","10 years","15 years","20 years"], answer:1},
+
+{q:"A registered Geographical Indication (GI) in India is approaching the end of its validity period. Under the Geographical Indications of Goods (Registration and Protection) Act, 1999, for what period can its registration be renewed?", options:["5 years","15 years","10 years","20 years"], answer:2},
+
+{q:"Which of the following statements is correct regarding the renewal of Geographical Indication (GI) registration in India under the GI Act, 1999?", options:["It can be renewed only once for another 10 years.","It cannot be renewed after the initial registration period.","It can be renewed indefinitely for further periods of 10 years, subject to prescribed requirements.","It can be renewed only for a period of 5 years."], answer:2},
+
+{q:"The Geographical Indications Registry, which administers the registration of Geographical Indications (GI) in India, is headquartered in which city?", options:["New Delhi","Mumbai","Kolkata","Chennai"], answer:3},
+
+{q:"The Geographical Indications Registry functions under the Office of the Controller General of Patents, Designs and Trade Marks (CGPDTM). The CGPDTM operates under which department and ministry?", options:["Department of Commerce – Ministry of Finance","Department for Promotion of Industry and Internal Trade (DPIIT) – Ministry of Commerce and Industry","Department of Industrial Policy – Ministry of MSME","Department of Legal Affairs – Ministry of Law and Justice"], answer:1},
+
+{q:"Which of the following correctly identifies the legislation that provides for the registration and protection of Geographical Indications (GI) in India?", options:["Trade Marks Act, 1999","Copyright Act, 1957","Geographical Indications of Goods (Registration and Protection) Act, 1999","Patents Act, 1970"], answer:2},
+
+{q:"The Geographical Indications of Goods (Registration and Protection) Act was enacted in 1999 and subsequently came into force on which date?", options:["15 September 2003","27 October 2003","29 October 2004","1 January 2000"], answer:0},
+
+{q:"Darjeeling Tea, associated with West Bengal, holds the distinction of being India's first GI-tagged product. Which organisation filed its Geographical Indication application on 27 October 2003?", options:["Coffee Board of India","Agricultural and Processed Food Products Export Development Authority (APEDA)","Tea Board of India","Ministry of Agriculture"], answer:2},
+
+{q:"Darjeeling Tea became India's first Geographical Indication (GI)-registered product. On which date was its GI registration certificate issued?", options:["27 October 2003","15 September 2003","8 October 2004","29 October 2004"], answer:3},
+
+{q:"As per the GI-related state-wise statistics provided for December 2025, which state ranked first in India with 81 GI-tagged products, followed by Tamil Nadu with 76 products?", options:["Maharashtra","Uttar Pradesh","Karnataka","West Bengal"], answer:1},
+
+{q:"According to the December 2025 GI statistics, which state occupied the second position with 76 Geographical Indication (GI)-tagged products, after Uttar Pradesh?", options:["West Bengal","Maharashtra","Tamil Nadu","Karnataka"], answer:2},
+
+{q:"According to the December 2025 GI statistics provided, which of the following states had 55 GI-tagged products and occupied the third position after Uttar Pradesh and Tamil Nadu?", options:["Maharashtra","Karnataka","Assam","Kerala"], answer:0},
+
+{q:"Consider the following state-wise GI-tagged product figures as of December 2025: 1. Uttar Pradesh – 81 2. Tamil Nadu – 76 3. Maharashtra – 55 4. Karnataka – 49. Which of the above combinations is correctly matched?", options:["Only 1 and 2","Only 2 and 3","Only 1, 3 and 4","All 1, 2, 3 and 4"], answer:3},
+
+{q:"Under the 2025 amendment relating to Geographical Indication (GI) registration, by what percentage were the fees for filing GI applications and related processes reduced?", options:["50%","80%","60%","75%"], answer:1},
+
+{q:"Following the 2025 amendment concerning Geographical Indication (GI) registration, the renewal fee for a GI tag was reduced from ₹3,000 to which amount?", options:["₹1,000","₹750","₹500","₹250"], answer:2},
+
+{q:"PM Ekta Mall, also known as Unity Mall, was announced in which Union Budget to promote One District One Product (ODOP), GI-tagged products and handicrafts across India?", options:["Union Budget 2021–22","Union Budget 2022–23","Union Budget 2024–25","Union Budget 2023–24"], answer:3},
+
+{q:"The Union Government allocated ₹5,000 crore during FY 2023–24 for the construction of PM Ekta Malls across States under which scheme?", options:["Scheme for Special Assistance to States for Capital Investment 2023–24 (SASCI)","PM Gati Shakti National Master Plan","Prime Minister's Employment Generation Programme","Rashtriya Gram Swaraj Abhiyan"], answer:0},
+
+{q:"Under the PM Ekta Mall initiative, announced in Union Budget 2023–24, which of the following products are intended to be promoted and sold through the proposed malls?", options:["Only agricultural exports and industrial machinery","One District One Product (ODOP) products, GI products and handicrafts","Only products manufactured by public sector enterprises","Only foreign-origin luxury products"], answer:1},
+
+{q:"Under Part VI (Unity Mall) of the Scheme for Special Assistance to States for Capital Investment 2023–24, Detailed Project Reports (DPRs) of 27 States were approved upon the recommendation of which department?", options:["Department of Expenditure","Department of Agriculture and Farmers Welfare","Department for Promotion of Industry and Internal Trade (DPIIT)","Department of Commerce"], answer:2},
+
+{q:"Which GI-tagged traditional sweet is associated with the Tirumala Venkateswara Temple in Andhra Pradesh and is popularly known as temple prasad?", options:["Ambaji Mohanthal","Palani Panchamirtham","Mysore Pak","Tirupati Laddu"], answer:3},
+
+{q:"Palani Panchamirtham, a Geographical Indication (GI)-tagged temple prasad, is associated with which Indian state?", options:["Tamil Nadu","Kerala","Andhra Pradesh","Karnataka"], answer:0},
+
+{q:"Which of the following pairs consists of two GI-tagged temple prasads from Gujarat and Tamil Nadu respectively?", options:["Tirupati Laddu – Palani Panchamirtham","Ambaji Mohanthal – Palani Panchamirtham","Ambaji Mohanthal – Tirupati Laddu","Palani Panchamirtham – Ambaji Mohanthal"], answer:1},
+
+{q:"Sirsa Kinnow received Geographical Indication (GI) recognition, Which state is associated with this kinnow variety?", options:["Punjab","Rajasthan","Haryana","Himachal Pradesh"], answer:2},
+
+{q:"Sirsa Kinnow, a hybrid citrus fruit associated with Haryana, was developed by crossing which two varieties?", options:["Nagpur Orange and Sweet Lime","King Mandarin and Sweet Orange","Willow Leaf Mandarin and Nagpur Orange","King Mandarin and Willow Leaf Mandarin"], answer:3},
+
+{q:"Who was the horticulturist credited with developing the original Sirsa Kinnow hybrid in California, USA?", options:["Howard B. Frost","Norman Borlaug","M. S. Swaminathan","Luther Burbank"], answer:0},
+
+{q:"Tandur Redgram, a GI-tagged agricultural product from Telangana, was associated with which export-related development mentioned in the given details?", options:["First export shipment to Maldives","First export shipment to Australia","First export shipment to the United Kingdom","First export shipment to Canada"], answer:1},
+
+{q:"Gulbarga Tur Dal, a GI-tagged agricultural product, is associated with which Indian state and export destination?", options:["Telangana – Australia","Assam – Dubai","Karnataka – Maldives","Tamil Nadu – Canada"], answer:2},
+
+{q:"Tezpur Litchi, a GI-tagged fruit from Assam, was promoted for export and associated with a shipment to which international destination?", options:["United Kingdom","Italy","Canada","Dubai"], answer:3},
+
+{q:"Joha Rice, a GI-tagged aromatic rice variety from Assam, was promoted for export to which of the following countries?", options:["United Kingdom and Italy","Australia and Maldives","Canada and Singapore","Dubai and France"], answer:0},
+
+{q:"Salem Sago, a GI-tagged product from Tamil Nadu, was associated with export promotion to which country, according to the given information?", options:["Singapore","Canada","Australia","United Kingdom"], answer:1},
+
+{q:"According to the GI statistics provided, how many total GI-tagged products were recorded in India?", options:["725","786","822","850"], answer:2},
+
+{q:"During April 2025 to March 2026, how many new Geographical Indication (GI) registrations were recorded in India according to the given statistics?", options:["100","115","150","125"], answer:3},
+
+{q:"Among the states with the highest number of new GI registrations during April 2025–March 2026, which state secured the first position with 26 registrations?", options:["Madhya Pradesh","West Bengal","Jharkhand","Uttar Pradesh"], answer:0},
+
+{q:"During April 2025–March 2026, West Bengal recorded how many new Geographical Indication (GI) registrations, placing it second among the states listed?", options:["26","24","11","29"], answer:1},
+
+{q:"Which state recorded 11 new Geographical Indication (GI) registrations during April 2025–March 2026, according to the given state-wise data?", options:["Madhya Pradesh","West Bengal","Jharkhand","Assam"], answer:2},
+
+{q:"Bhagaiya Silk, a traditional silk product, received Geographical Indication (GI) recognition and is associated with which Indian state?", options:["Bihar","Assam","Meghalaya","Jharkhand"], answer:3},
+
+{q:"Bihu Pepa, a traditional musical instrument made from buffalo horn and associated with the Bihu cultural tradition, belongs to which state?", options:["Assam","Meghalaya","Manipur","Nagaland"], answer:0},
+
+{q:"Khurasani Imli, a GI-tagged agricultural product, is associated with which Indian state?", options:["Rajasthan","Madhya Pradesh","Gujarat","Chhattisgarh"], answer:1},
+
+{q:"Chapata Chilli, a GI-tagged agricultural product, is associated with which state?", options:["Andhra Pradesh","Karnataka","Telangana","Maharashtra"], answer:2},
+
+{q:"Unjha Cumin and Unjha Fennel, both associated with traditional agricultural production, received Geographical Indication (GI) recognition from which state?", options:["Rajasthan","Madhya Pradesh","Maharashtra","Gujarat"], answer:3},
+
+{q:"Nagauri Ashwagandha, a GI-tagged agricultural product known for its association with traditional cultivation, belongs to which state?", options:["Rajasthan","Gujarat","Haryana","Uttar Pradesh"], answer:0},
+
+{q:"Ryndia Silk, a traditional silk product associated with the indigenous weaving heritage of the region, received Geographical Indication (GI) recognition from which state?", options:["Assam","Meghalaya","Nagaland","Tripura"], answer:1},
+
+{q:"Which of the following is NOT included among the eight recently GI-recognised products from Himachal Pradesh mentioned in the given information?", options:["Kinnauri Apple","Spiti's Seabuckthorn (Chharma)","Madhubani Painting","Chamba Metal Art"], answer:2},
+
+{q:"Sirmauri Loiya, a traditional woollen cloth that received Geographical Indication (GI), belongs to which state?", options:["Uttarakhand","Jammu and Kashmir","Punjab","Himachal Pradesh"], answer:3},
+
+{q:"Jalbhara Sandesh and Janai Manohara are traditional sweets associated with which Indian state?", options:["West Bengal","Odisha","Bihar","Assam"], answer:0},
+
+{q:"Balagarh Traditional Boats, a traditional product associated with the boat-making heritage of the region, received Geographical Indication (GI) recognition from which state?", options:["Kerala","West Bengal","Goa","Odisha"], answer:1},
+
+{q:"Which of the following pairs is correctly matched with respect to GI-tagged traditional products of Jharkhand?", options:["Munda Jewellery ","Kuchai Silk ","Bhagaiya Silk","Bawan Buti Saree "], answer:2},
+
+{q:"Bawan (52) Buti Saree and Fabric, Patharkatti Stone Craft and Pidiya Painting are three GI-tagged products associated with which state?", options:["Jharkhand","West Bengal","Madhya Pradesh","Bihar"], answer:3},
+
+{q:"Patharkatti Stone Craft, one of the three GI-tagged products mentioned from Bihar, is associated with which district?", options:["Gaya","Nalanda","Bhojpur","Patna"], answer:0},
+
+{q:"Which of the following GI-tagged products from Assam is a traditional musical instrument made from buffalo horn?", options:["Majuli Mask","Bihu Pepa","Bah Silpa","Deori Handloom"], answer:1},
+
+{q:"Judima, a GI-tagged traditional rice-based alcoholic beverage, is associated with which state?", options:["Manipur","Meghalaya","Assam","Nagaland"], answer:2},
+
+{q:"Kaji Nemu, a GI-tagged citrus fruit known for its distinctive characteristics, is associated with which Indian state?", options:["Mizoram","Tripura","Manipur","Assam"], answer:3},
+
+{q:"Chikankari Embroidery, a traditional embroidery style famous for its intricate needlework, is primarily associated with which city and state?", options:["Lucknow – Uttar Pradesh","Jaipur – Rajasthan","Ahmedabad – Gujarat","Bhopal – Madhya Pradesh"], answer:0},
+
+{q:"Bandhani Print, a traditional tie-and-dye textile art form, is associated with which pair of Indian states?", options:["Punjab and Haryana","Gujarat and Rajasthan","Maharashtra and Goa","Uttar Pradesh and Bihar"], answer:1},
+
+{q:"Saudagari Block Print, a traditional textile printing technique, is associated with which city in Gujarat?", options:["Surat","Vadodara","Ahmedabad","Rajkot"], answer:2},
+
+{q:"Kalamkari Art, a traditional hand-painted or block-printed textile art form, is associated with which two Indian states in the given information?", options:["Gujarat and Rajasthan","Tamil Nadu and Kerala","Maharashtra and Goa","Andhra Pradesh and Telangana"], answer:3},
+
+{q:"Tungbuk and Pumtong Pulit are traditional GI-tagged products associated with which northeastern Indian state?", options:["Sikkim","Assam","Meghalaya","Arunachal Pradesh"], answer:0},
+
+{q:"Ponduru Khadi, a traditional hand-spun and handwoven textile product, is associated with which Indian state?", options:["Telangana","Andhra Pradesh","Tamil Nadu","Karnataka"], answer:1},
+
+{q:"Red Ant Chutney, also known as Kai Chutney, is a traditional food product associated with which Indian state?", options:["Chhattisgarh","Jharkhand","Odisha","West Bengal"], answer:2},
+
+{q:"Which of the following is a GI-tagged traditional product from Tamil Nadu among the recently listed products?", options:["Bawan Buti Saree","Kuchai Silk","Puttapaka Telia Rumal","Woraiyur Cotton Sari"], answer:3},
+
+{q:"Kavindapadi Jaggery Powder, a traditional agricultural product that received Geographical Indication (GI) recognition, belongs to which state?", options:["Tamil Nadu","Kerala","Karnataka","Andhra Pradesh"], answer:0},
+
+{q:"Namakkal Soapstone Cookware, a traditional product recognised for its regional identity, is associated with which Indian state?", options:["Andhra Pradesh","Tamil Nadu","Telangana","Maharashtra"], answer:1},
+
+{q:"Thooyamalli Rice, a traditional rice variety that received Geographical Indication (GI) recognition, is associated with which state?", options:["Kerala","Karnataka","Tamil Nadu","Andhra Pradesh"], answer:2},
+
+{q:"Narasinghapettai Nagaswaram, a traditional musical instrument known for its cultural and musical significance, is associated with which Indian state?", options:["Kerala","Andhra Pradesh","Karnataka","Tamil Nadu"], answer:3},
+
+{q:"Alibaug White Onion, Jalgaon Banana, Kolhapur Jaggery and Ghovad Sapota are GI-tagged products associated with which state?", options:["Maharashtra","Gujarat","Goa","Madhya Pradesh"], answer:0},
+
+{q:"Puttapaka Telia Rumal, a traditional textile art involving distinctive resist-dyeing techniques, is associated with which Indian state?", options:["Andhra Pradesh","Telangana","Karnataka","Maharashtra"], answer:1},
+
+{q:"Which of the following is correctly matched with Uttarakhand's GI-tagged traditional products?", options:["Mithila Makhana – Uttarakhand","Kandhamal Haladi – Uttarakhand","Aipan Art – Uttarakhand","Kashmir Saffron – Uttarakhand"], answer:2},
+
+{q:"Tejapatta holds a special distinction among Uttarakhand's Geographical Indication (GI)-tagged products. What is its significance according to the given information?", options:["It is India's first GI-tagged agricultural product.","It is the first GI-tagged product from the Himalayan region.","It is the first GI-tagged spice from India.","It is Uttarakhand's first GI-tagged product."], answer:3},
+
+{q:"Mithila Makhana, Jardalu Mango, Magahi Paan, Katarni Rice and Madhubani Painting are traditional products associated with which state?", options:["Bihar","Jharkhand","West Bengal","Uttar Pradesh"], answer:0},
+
+{q:"Chakhao, a GI-tagged traditional black rice variety known for its distinctive colour and cultural importance, is associated with which state?", options:["Assam","Manipur","Nagaland","Mizoram"], answer:1},
+
+{q:"Hathei Chilli, popularly known as Elephant Chilli, is a GI-tagged agricultural product associated with which Indian state?", options:["Mizoram","Nagaland","Manipur","Tripura"], answer:2},
+
+{q:"Khola Chilli, Myndoli Banana, Harmal Chilli and Feni are traditional GI-associated products of which Indian state?", options:["Kerala","Karnataka","Maharashtra","Goa"], answer:3},
+
+{q:"Which of the following GI-tagged products is associated with Odisha?", options:["Kandhamal Haladi","Kaji Nemu","Katarni Rice","Kinnauri Apple"], answer:0},
+
+{q:"Odisha Rasagola, a traditional sweet recognised under the Geographical Indication (GI) framework, belongs to which state?", options:["West Bengal","Odisha","Bihar","Jharkhand"], answer:1},
+
+{q:"Konark Stone Carving, a traditional craft associated with the architectural and cultural heritage of the famous Sun Temple, belongs to which state?", options:["Rajasthan","Gujarat","Odisha","Madhya Pradesh"], answer:2},
+
+{q:"Which of the following combinations consists entirely of GI-tagged products associated with Jammu and Kashmir?", options:["Mithila Makhana, Magahi Paan and Madhubani Painting","Kinnauri Apple, Kinnauri Topi and Chamba Metal Art","Munsiyari Rajma, Aipan Art and Ringal Craft","Pashmina Shawls, Kashmir Saffron and Sozani Craft"], answer:3},
+
+{q:"Sohrai Khovar, a traditional tribal art form associated with wall paintings and cultural practices, belongs to which state?", options:["Jharkhand","Bihar","Odisha","Chhattisgarh"], answer:0},
+
+{q:"Which of the following pairs is correctly matched with its respective state under the Geographical Indication (GI) framework?", options:["Chanderi Sarees – Rajasthan","Chanderi Sarees – Madhya Pradesh","Kanchipuram Silk Saree – Kerala","Madhubani Painting – Jharkhand"], answer:1},
+
+{q:"Kanchipuram Silk Saree, a famous traditional silk textile known for its intricate designs and craftsmanship, is associated with which state?", options:["Karnataka","Andhra Pradesh","Tamil Nadu","Kerala"], answer:2},
+
+{q:"Madhubani Painting, a traditional folk-art form characterised by intricate patterns and natural themes, is associated with which Indian state?", options:["Uttar Pradesh","Jharkhand","West Bengal","Bihar"], answer:3},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
